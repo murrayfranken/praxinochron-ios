@@ -497,11 +497,48 @@ struct ContentView: View {
                 Text(String(format: String(localized: "dialog_delete_timer_text"), name))
             }
         }
-        .alert(String(localized: "menu_about"), isPresented: $showAboutDialog) {
-            Button(String(localized: "btn_ok"), role: .cancel) {}
-        } message: {
-            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? String(localized: "fallback_version_name")
-            Text("\(String(localized: "about_text_copyright"))v\(version)\n\n\(String(localized: "about_text_resources"))\n\(Constants.urlPraxinoscope)")
+        .overlay {
+            if showAboutDialog {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture { showAboutDialog = false }
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(String(localized: "menu_about"))
+                            .font(.headline)
+                            .foregroundColor(Color.praxinoTheme.textPrimary)
+                        
+                        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? String(localized: "fallback_version_name")
+                        Text("\(String(localized: "about_text_copyright"))v\(version)\n\n\(String(localized: "about_text_resources"))")
+                            .font(.subheadline)
+                            .foregroundColor(Color.praxinoTheme.textSecondary)
+                        
+                        if let url = URL(string: Constants.urlPraxinoscope) {
+                            Link(Constants.urlPraxinoscope, destination: url)
+                                .font(.subheadline)
+                                .foregroundColor(Color.praxinoTheme.brandBlue)
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Button(String(localized: "btn_ok")) {
+                                showAboutDialog = false
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.praxinoTheme.brandBlue)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                        }
+                    }
+                    .padding(20)
+                    .background(Color.praxinoTheme.surface)
+                    .cornerRadius(16)
+                    .shadow(radius: 10)
+                    .padding(.horizontal, 40)
+                }
+            }
         }
         .fileExporter(
             isPresented: $isExporting,
