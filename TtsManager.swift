@@ -84,3 +84,4 @@ final class SpeechDelegate: NSObject, AVSpeechSynthesizerDelegate, @unchecked Se
         }
     }
 }
+// 87 lines in v1.1

@@ -145,7 +145,7 @@ struct ContentView: View {
                                         Text(String(localized: "label_timer_name"))
                                             .font(.caption)
                                             .fontWeight(.bold)
-                                            .foregroundColor(Color.praxinoTheme.appGreen)
+                                            .foregroundColor(Color.praxinoTheme.textAccent)
                                         TextField("", text: $viewModel.timerName)
                                             .textFieldStyle(.plain)
                                             .foregroundColor(Color.praxinoTheme.textPrimary)
@@ -227,7 +227,7 @@ struct ContentView: View {
                                             range: 0...Float(max(0, AppConfig.totalTimeOptions.count - 1)),
                                             trackThickness: 8,
                                             activeTrackColor: Color.praxinoTheme.brandBlue,
-                                            inactiveTrackColor: Color.praxinoTheme.mediumGrey2
+                                            inactiveTrackColor: Color.praxinoTheme.trackInactive
                                         )
                                         .padding(.bottom, 16)
                                     }
@@ -245,7 +245,7 @@ struct ContentView: View {
                                             range: 0...Float(max(0, AppConfig.intervalOptions.count - 1)),
                                             trackThickness: 8,
                                             activeTrackColor: Color.praxinoTheme.brandBlue,
-                                            inactiveTrackColor: Color.praxinoTheme.mediumGrey2
+                                            inactiveTrackColor: Color.praxinoTheme.trackInactive
                                         )
                                         
                                         HStack(spacing: 8) {
@@ -295,7 +295,7 @@ struct ContentView: View {
                                             range: 0...1.0,
                                             trackThickness: 8,
                                             activeTrackColor: Color.praxinoTheme.brandBlue,
-                                            inactiveTrackColor: Color.praxinoTheme.mediumGrey2
+                                            inactiveTrackColor: Color.praxinoTheme.trackInactive
                                         )
                                         .onChange(of: viewModel.ttsVolume) { _ in playVolumeBeep() }
                                         .padding(.bottom, 24)
@@ -344,7 +344,7 @@ struct ContentView: View {
                                             range: 0...1.0,
                                             trackThickness: 8,
                                             activeTrackColor: Color.praxinoTheme.brandBlue,
-                                            inactiveTrackColor: Color.praxinoTheme.mediumGrey2
+                                            inactiveTrackColor: Color.praxinoTheme.trackInactive
                                         )
                                         .onChange(of: viewModel.ttsVolume) { _ in playVolumeBeep() }
                                         .padding(.bottom, 24)
@@ -404,7 +404,7 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     Text(String(localized: "dialog_manage_timers_title"))
                         .font(.title3.bold())
-                        .foregroundColor(Color.praxinoTheme.appGreen)
+                        .foregroundColor(Color.praxinoTheme.textAccent)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
@@ -649,3 +649,4 @@ struct ContentView: View {
         }
     }
 }
+// 652 lines in v1.1

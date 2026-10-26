@@ -74,3 +74,4 @@ struct HelpScreen: View {
         .padding(.bottom, 16)
     }
 }
+// 77 lines in v1.1
