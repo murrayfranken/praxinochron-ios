@@ -66,7 +66,7 @@ enum Constants {
     static let extraCurrentInterval = "CURRENT_INTERVAL"
     static let logTagTimer = "TIMER_DEBUG"
     static let mimeTypeJson = "application/json"
-    static let maxTimerNameLength = 30
+    static let maxTimerNameLength = 32
     static let clickDebounceMs = 600
     static let volumeMultiplier: Float = 100.0
     static let channelIdTimer = "TIMER_CHANNEL"

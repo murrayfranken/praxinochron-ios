@@ -157,7 +157,7 @@ struct ContentView: View {
                                             }
                                     }
                                     .padding(.vertical, 8)
-                                    .padding(.horizontal, 12)
+                                    .padding(.horizontal, 8)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.praxinoTheme.mediumGrey, lineWidth: 1)
@@ -182,8 +182,9 @@ struct ContentView: View {
                                     } label: {
                                         Image(systemName: "arrowtriangle.down.fill")
                                             .foregroundColor(Color.praxinoTheme.textPrimary)
-                                            .padding()
+                                            .frame(width: 44, height: 44)
                                     }
+                                    .tint(Color.praxinoTheme.textAccent)
                                     .disabled(engine.isRunning)
                                 }
                                 .padding(16)
