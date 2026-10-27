@@ -16,7 +16,6 @@ final class TimerEngine: ObservableObject {
     private var pauseAlarmTask: Task<Void, Never>?
     private var targetEndDate: Date?
     private var timeRemainingSeconds: Int = 0
-    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     
     private let defaults = UserDefaults.standard
     
@@ -58,20 +57,11 @@ final class TimerEngine: ObservableObject {
         updateDisplays(seconds: timeRemainingSeconds, isSecondsMode: isSecondsMode, currentIntervalSeconds: baseIntervalSeconds, multiplier: multiplier)
         targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
         
+        targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
+                
         timerTask?.cancel()
-                
-                // Layer 2: Request an explicit 30-second execution shield for when audio drops
-                if backgroundTask != .invalid {
-                    UIApplication.shared.endBackgroundTask(backgroundTask)
-                }
-                backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-                    if let task = self?.backgroundTask, task != .invalid {
-                        UIApplication.shared.endBackgroundTask(task)
-                        self?.backgroundTask = .invalid
-                    }
-                }
-                
-                timerTask = Task {
+        
+        timerTask = Task {
             var lastEvaluatedSecond = timeRemainingSeconds
             
             while timeRemainingSeconds > 0 && !Task.isCancelled {
@@ -137,13 +127,9 @@ final class TimerEngine: ObservableObject {
             isRunning = false
             isPaused = false
             SilentAudioEngine.shared.stop()
-            if backgroundTask != .invalid {
-                UIApplication.shared.endBackgroundTask(backgroundTask)
-                backgroundTask = .invalid
-            }
             Task {
-            await TtsManager.shared.stop()
-        }
+                await TtsManager.shared.stop()
+            }
         NotificationCenter.default.post(name: NSNotification.Name(Constants.actionTimerFinished), object: nil)
     }
     
@@ -205,13 +191,9 @@ final class TimerEngine: ObservableObject {
     }
     
     private func executeCompletionSequence(timerName: String, nameRepeats: Int, speechRate: Float, pitch: Float, ttsVolume: Float) {
-        isRunning = false
-        SilentAudioEngine.shared.stop()
-        if backgroundTask != .invalid {
-            UIApplication.shared.endBackgroundTask(backgroundTask)
-            backgroundTask = .invalid
-        }
-        let endingPhrase = defaults.string(forKey: Constants.prefEndingPhrase) ?? String(localized: "default_ending_phrase")
+            isRunning = false
+            SilentAudioEngine.shared.stop()
+            let endingPhrase = defaults.string(forKey: Constants.prefEndingPhrase) ?? String(localized: "default_ending_phrase")
         let endingRepeats = defaults.integer(forKey: Constants.prefEndingRepeats)
         
         var finalSpeech = ""
