@@ -35,7 +35,7 @@ struct SettingsScreen: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(NSLocalizedString("label_ending_phrase", comment: ""))
                                 .font(.subheadline.bold())
-                                .foregroundColor(Color.praxinoTheme.textAccent)
+                                .foregroundColor(Color.praxinoTheme.appGreen)
                             
                             TextField("", text: $viewModel.endingPhrase)
                                 .textFieldStyle(.roundedBorder)
@@ -67,7 +67,6 @@ struct SettingsScreen: View {
                                                     rate: viewModel.speechRate,
                                                     pitch: viewModel.pitch,
                                                     volume: viewModel.ttsVolume,
-                                                    focusMode: 0
                                                 )
                                             }
                                         }
@@ -131,17 +130,6 @@ struct SettingsScreen: View {
                 
                 PraxinoCard {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text(NSLocalizedString("label_audio_focus", comment: ""))
-                            .font(.body)
-                            .foregroundColor(Color.praxinoTheme.textPrimary)
-                        
-                        Picker("", selection: $viewModel.audioFocusMode) {
-                            Text(NSLocalizedString("label_off", comment: "")).tag(0)
-                            Text(NSLocalizedString("label_audio_lower", comment: "")).tag(1)
-                            Text(NSLocalizedString("label_audio_pause", comment: "")).tag(2)
-                        }
-                        .pickerStyle(.segmented)
-                        
                         Text(NSLocalizedString("label_audio_pause_alarm", comment: ""))
                             .font(.body)
                             .foregroundColor(Color.praxinoTheme.textPrimary)
@@ -185,9 +173,8 @@ struct SettingsScreen: View {
                 rate: viewModel.speechRate,
                 pitch: viewModel.pitch,
                 volume: viewModel.ttsVolume,
-                focusMode: 0
             )
         }
     }
 }
-// 193 lines in v1.1
+// 180 lines in v1.2

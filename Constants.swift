@@ -46,8 +46,6 @@ enum Constants {
     static let extraSpeakName = "extra_speak_name"
     static let prefTtsVolume = "tts_volume"
     static let extraTtsVolume = "extra_tts_volume"
-    static let prefAudioFocusMode = "audio_focus_mode"
-    static let extraAudioFocusMode = "extra_audio_focus_mode"
     static let prefPauseAlarmMode = "pause_alarm_mode"
     static let extraPauseAlarmMode = "extra_pause_alarm_mode"
     static let actionPause = "com.praxinoscopemedia.praxinochron.ACTION_PAUSE"

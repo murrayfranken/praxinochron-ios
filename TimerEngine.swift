@@ -1,6 +1,8 @@
 import Foundation
 import AudioToolbox
 import Combine
+import UIKit
+import UserNotifications
 
 @MainActor
 final class TimerEngine: ObservableObject {
@@ -15,6 +17,7 @@ final class TimerEngine: ObservableObject {
     private var pauseAlarmTask: Task<Void, Never>?
     private var targetEndDate: Date?
     private var timeRemainingSeconds: Int = 0
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     
     private let defaults = UserDefaults.standard
     
@@ -23,6 +26,7 @@ final class TimerEngine: ObservableObject {
     func start() {
         isRunning = true
         isPaused = false
+        SilentAudioEngine.shared.start()
         
         let totalMinutes = defaults.integer(forKey: Constants.prefTotalTime)
         let intervalMinutes = defaults.integer(forKey: Constants.prefIntervalTime)
@@ -34,7 +38,6 @@ final class TimerEngine: ObservableObject {
         let pitch = defaults.float(forKey: Constants.prefPitch)
         let ttsVolume = defaults.float(forKey: Constants.prefTtsVolume)
         let intervalAcceleration = defaults.object(forKey: Constants.prefIntervalAccel) as? Bool ?? true
-        let audioFocusMode = defaults.integer(forKey: Constants.prefAudioFocusMode)
         
         let multiplier = isSecondsMode ? 1 : 60
         timeRemainingSeconds = (totalMinutes == 0 ? 10 : totalMinutes) * multiplier
@@ -50,15 +53,27 @@ final class TimerEngine: ObservableObject {
                 rate: speechRate,
                 pitch: pitch,
                 volume: ttsVolume,
-                focusMode: audioFocusMode
             )
         }
         
         updateDisplays(seconds: timeRemainingSeconds, isSecondsMode: isSecondsMode, currentIntervalSeconds: baseIntervalSeconds, multiplier: multiplier)
         targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
+        refreshBackupNotifications()
         
         timerTask?.cancel()
-        timerTask = Task {
+                
+                // Layer 2: Request an explicit 30-second execution shield for when audio drops
+                if backgroundTask != .invalid {
+                    UIApplication.shared.endBackgroundTask(backgroundTask)
+                }
+                backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+                    if let task = self?.backgroundTask, task != .invalid {
+                        UIApplication.shared.endBackgroundTask(task)
+                        self?.backgroundTask = .invalid
+                    }
+                }
+                
+                timerTask = Task {
             var lastEvaluatedSecond = timeRemainingSeconds
             
             while timeRemainingSeconds > 0 && !Task.isCancelled {
@@ -102,7 +117,6 @@ final class TimerEngine: ObservableObject {
                                 rate: speechRate,
                                 pitch: pitch,
                                 volume: ttsVolume,
-                                focusMode: audioFocusMode
                             )
                         }
                     }
@@ -114,17 +128,23 @@ final class TimerEngine: ObservableObject {
             }
             
             if timeRemainingSeconds <= 0 && !Task.isCancelled {
-                executeCompletionSequence(timerName: timerName, nameRepeats: nameRepeats, speechRate: speechRate, pitch: pitch, ttsVolume: ttsVolume, audioFocusMode: audioFocusMode)
+                executeCompletionSequence(timerName: timerName, nameRepeats: nameRepeats, speechRate: speechRate, pitch: pitch, ttsVolume: ttsVolume)
             }
         }
     }
     
     func stop() {
-        timerTask?.cancel()
-        pauseAlarmTask?.cancel()
-        isRunning = false
-        isPaused = false
-        Task {
+            cancelBackupNotifications()
+            timerTask?.cancel()
+            pauseAlarmTask?.cancel()
+            isRunning = false
+            isPaused = false
+            SilentAudioEngine.shared.stop()
+            if backgroundTask != .invalid {
+                UIApplication.shared.endBackgroundTask(backgroundTask)
+                backgroundTask = .invalid
+            }
+            Task {
             await TtsManager.shared.stop()
         }
         NotificationCenter.default.post(name: NSNotification.Name(Constants.actionTimerFinished), object: nil)
@@ -133,6 +153,7 @@ final class TimerEngine: ObservableObject {
     func pause() {
         guard isRunning, !isPaused else { return }
         isPaused = true
+        cancelBackupNotifications()
         Task {
             await TtsManager.shared.stop()
         }
@@ -144,6 +165,7 @@ final class TimerEngine: ObservableObject {
         isPaused = false
         pauseAlarmTask?.cancel()
         targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
+        refreshBackupNotifications()
     }
     
     private func updateDisplays(seconds: Int, isSecondsMode: Bool, currentIntervalSeconds: Int, multiplier: Int) {
@@ -172,31 +194,28 @@ final class TimerEngine: ObservableObject {
         pauseAlarmTask = Task {
             let isSecondsMode = defaults.bool(forKey: Constants.prefIsSecondsMode)
             let delaySeconds = isSecondsMode ? amount : amount * 60
-            let audioFocusMode = defaults.integer(forKey: Constants.prefAudioFocusMode)
             
             while isPaused && !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: UInt64(delaySeconds) * 1_000_000_000)
                 guard isPaused && !Task.isCancelled else { break }
                 
-                if audioFocusMode != 0 {
-                    AudioFocusManager.setFocus(mode: audioFocusMode)
-                    try? await Task.sleep(nanoseconds: 120_000_000)
-                }
+                AudioFocusManager.setFocus()
+                try? await Task.sleep(nanoseconds: 120_000_000)
                 
-                // Play audio beep without the physical haptic vibration (System Sound 1052 is sound-only)
                 AudioServicesPlaySystemSound(1052)
                 
                 try? await Task.sleep(nanoseconds: 250_000_000)
-                
-                if audioFocusMode != 0 {
-                    AudioFocusManager.releaseFocus()
-                }
             }
         }
     }
     
-    private func executeCompletionSequence(timerName: String, nameRepeats: Int, speechRate: Float, pitch: Float, ttsVolume: Float, audioFocusMode: Int) {
+    private func executeCompletionSequence(timerName: String, nameRepeats: Int, speechRate: Float, pitch: Float, ttsVolume: Float) {
         isRunning = false
+        // Do NOT cancel backup notifications here. Let the OS deliver the final completion banner.        SilentAudioEngine.shared.stop()
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
+        }
         let endingPhrase = defaults.string(forKey: Constants.prefEndingPhrase) ?? String(localized: "default_ending_phrase")
         let endingRepeats = defaults.integer(forKey: Constants.prefEndingRepeats)
         
@@ -218,11 +237,73 @@ final class TimerEngine: ObservableObject {
                 rate: speechRate,
                 pitch: pitch,
                 volume: ttsVolume,
-                focusMode: audioFocusMode
             )
         }
         
         NotificationCenter.default.post(name: NSNotification.Name(Constants.actionTimerFinished), object: nil)
-    }
-}
-// 228 lines in v1.1
+            }
+
+            private func refreshBackupNotifications() {
+                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                guard timeRemainingSeconds > 0 else { return }
+                
+                let intervalMinutes = defaults.integer(forKey: Constants.prefIntervalTime)
+                let isSecondsMode = defaults.bool(forKey: Constants.prefIsSecondsMode)
+                let timerName = defaults.string(forKey: Constants.prefTimerName) ?? ""
+                let intervalAcceleration = defaults.object(forKey: Constants.prefIntervalAccel) as? Bool ?? true
+                let multiplier = isSecondsMode ? 1 : 60
+                let baseIntervalSeconds = (intervalMinutes == 0 ? 1 : intervalMinutes) * multiplier
+                
+                var simulatedTime = timeRemainingSeconds
+                var scheduledCount = 0
+                
+                while simulatedTime > 0 && scheduledCount < 60 {
+                    let rangeIntervalSeconds: Int
+                    if intervalAcceleration {
+                        if simulatedTime > 20 * multiplier { rangeIntervalSeconds = baseIntervalSeconds }
+                        else if simulatedTime > 10 * multiplier { rangeIntervalSeconds = 5 * multiplier }
+                        else if simulatedTime > 5 * multiplier { rangeIntervalSeconds = 2 * multiplier }
+                        else { rangeIntervalSeconds = 1 * multiplier }
+                    } else {
+                        rangeIntervalSeconds = baseIntervalSeconds
+                    }
+                    
+                    let currentIntervalSeconds = min(baseIntervalSeconds, rangeIntervalSeconds)
+                    simulatedTime -= 1
+                    
+                    if simulatedTime > 0 && simulatedTime % currentIntervalSeconds == 0 {
+                        let timeLeftOut = simulatedTime / multiplier
+                        let timeRemainingString = TimeFormatHelper.formatTime(amount: timeLeftOut, isSecondsMode: isSecondsMode)
+                        
+                        let content = UNMutableNotificationContent()
+                        content.title = timerName.isEmpty ? "Timer Interval" : timerName
+                        content.body = "\(timeRemainingString) remaining."
+                        content.sound = .default
+                        
+                        let timeUntilFire = Double(timeRemainingSeconds - simulatedTime)
+                        if timeUntilFire > 0 {
+                            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeUntilFire, repeats: false)
+                            let request = UNNotificationRequest(identifier: "interval_\(simulatedTime)", content: content, trigger: trigger)
+                            UNUserNotificationCenter.current().add(request)
+                            scheduledCount += 1
+                        }
+                    }
+                }
+                
+                let content = UNMutableNotificationContent()
+                content.title = timerName.isEmpty ? "Timer Complete" : timerName
+                content.body = String(localized: "default_ending_phrase")
+                content.sound = .default
+                let timeUntilFire = Double(timeRemainingSeconds)
+                if timeUntilFire > 0 {
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeUntilFire, repeats: false)
+                    let request = UNNotificationRequest(identifier: "timer_complete", content: content, trigger: trigger)
+                    UNUserNotificationCenter.current().add(request)
+                }
+            }
+
+            private func cancelBackupNotifications() {
+                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+            }
+        }
+// 317 lines in v1.2

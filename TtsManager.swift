@@ -23,10 +23,17 @@ actor TtsManager {
         }
     }
     
-    func speak(text: String, rate: Float = 1.0, pitch: Float = 1.0, volume: Float = 1.0, focusMode: Int = 0) {
+    func speak(text: String, rate: Float = 1.0, pitch: Float = 1.0, volume: Float = 1.0) async {
+        let interrupted = await MainActor.run { SilentAudioEngine.shared.isInterrupted }
+        if interrupted {
+            logger.debug("Audio hardware locked by iOS. Bypassing TTS to prevent queue crash: \(text)")
+            return
+        }
+
         logger.debug("Speaking: \(text)")
-        Task { @MainActor in
-            AudioFocusManager.setFocus(mode: focusMode)
+        
+        await MainActor.run {
+            AudioFocusManager.setFocus()
         }
         
         let utterance = AVSpeechUtterance(string: text)

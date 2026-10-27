@@ -49,9 +49,6 @@
 "default_timer_name_voice" = "Timer Name";
 "label_voice_speed" = "Voice: Speed";
 "label_voice_pitch" = "Voice: Pitch";
-"label_audio_focus" = "Background Audio Limiter";
-"label_audio_lower" = "Lower";
-"label_audio_pause" = "Pause";
 "label_audio_pause_alarm" = "Pause Reminder Beep";
 "label_audio_sec_short" = "%1$llds";
 "label_audio_min_short" = "%1$lldm";

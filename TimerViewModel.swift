@@ -34,10 +34,6 @@ final class TimerViewModel: ObservableObject {
         didSet { defaults.set(ttsVolume, forKey: Constants.prefTtsVolume) }
     }
     
-    @Published var audioFocusMode: Int {
-        didSet { defaults.set(audioFocusMode, forKey: Constants.prefAudioFocusMode) }
-    }
-    
     @Published var pauseAlarmMode: Int {
         didSet { defaults.set(pauseAlarmMode, forKey: Constants.prefPauseAlarmMode) }
     }
@@ -78,7 +74,6 @@ final class TimerViewModel: ObservableObject {
         self.pitch = defaults.object(forKey: Constants.prefPitch) as? Float ?? 1.0
         self.intervalAcceleration = defaults.object(forKey: Constants.prefIntervalAccel) as? Bool ?? true
         self.ttsVolume = defaults.object(forKey: Constants.prefTtsVolume) as? Float ?? 1.0
-        self.audioFocusMode = defaults.integer(forKey: Constants.prefAudioFocusMode)
         self.pauseAlarmMode = defaults.integer(forKey: Constants.prefPauseAlarmMode)
         
         self.loadedTimerName = defaults.string(forKey: Constants.prefTimerName)
@@ -112,7 +107,6 @@ final class TimerViewModel: ObservableObject {
         defaults.set(pitch, forKey: Constants.prefPitch)
         defaults.set(intervalAcceleration, forKey: Constants.prefIntervalAccel)
         defaults.set(ttsVolume, forKey: Constants.prefTtsVolume)
-        defaults.set(audioFocusMode, forKey: Constants.prefAudioFocusMode)
         defaults.set(pauseAlarmMode, forKey: Constants.prefPauseAlarmMode)
     }
     
@@ -199,4 +193,4 @@ final class TimerViewModel: ObservableObject {
         isPaused = paused
     }
 }
-// 202 lines in v1.1
+// 202 lines in v1.2

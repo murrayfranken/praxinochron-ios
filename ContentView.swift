@@ -635,7 +635,6 @@ struct ContentView: View {
                     rate: viewModel.speechRate,
                     pitch: viewModel.pitch,
                     volume: viewModel.ttsVolume,
-                    focusMode: 0
                 )
             }
         }
