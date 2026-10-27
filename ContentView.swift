@@ -393,7 +393,6 @@ struct ContentView: View {
                     SettingsScreen(viewModel: viewModel)
                 } else if currentScreen == .help {
                     HelpScreen()
-                        .padding(.horizontal, 16)
                 }
                 
                 Spacer(minLength: 0)
@@ -649,4 +648,4 @@ struct ContentView: View {
         }
     }
 }
-// 652 lines in v1.1
+// 652 lines in v1.2

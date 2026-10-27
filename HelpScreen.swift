@@ -38,39 +38,41 @@ struct HelpScreen: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(String(localized: "help_intro_text"))
-                        .foregroundColor(Color.praxinoTheme.textPrimary)
-                        .font(.body)
-                        .padding(.bottom, 24)
-                    
-                    ForEach(helpContent) { section in
-                        Text(section.title)
-                            .foregroundColor(Color.praxinoTheme.textAccent)
-                            .fontWeight(.bold)
+        ScrollView {
+            VStack(spacing: 16) {
+                PraxinoCard {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(String(localized: "help_intro_text"))
+                            .foregroundColor(Color.praxinoTheme.textPrimary)
                             .font(.body)
-                            .padding(.bottom, 8)
-                        
-                        ForEach(section.items, id: \.self) { item in
-                            Text(item)
-                                .foregroundColor(Color.praxinoTheme.textPrimary)
-                                .font(.body)
-                                .padding(.bottom, 12)
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                ForEach(helpContent) { section in
+                    PraxinoCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(section.title)
+                                .foregroundColor(Color.praxinoTheme.textAccent)
+                                .font(.title3.bold())
+                                .padding(.bottom, 4)
+                            
+                            ForEach(section.items, id: \.self) { item in
+                                Text(item)
+                                    .foregroundColor(Color.praxinoTheme.textPrimary)
+                                    .font(.body)
+                                    .padding(.bottom, 4)
+                            }
                         }
-                        
-                        Spacer()
-                            .frame(height: 16)
+                        .padding(16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .padding(16)
             }
+            .padding(16)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.praxinoTheme.surface)
-        .cornerRadius(12)
-        .padding(.bottom, 16)
+        .background(Color.praxinoTheme.background.ignoresSafeArea())
     }
 }
-// 77 lines in v1.1
+// 76 lines in v1.2
