@@ -31,8 +31,7 @@ struct HelpScreen: View {
                 items: [
                     String(localized: "help_settings_item_1"),
                     String(localized: "help_settings_item_2"),
-                    String(localized: "help_settings_item_3"),
-                    String(localized: "help_settings_item_4")
+                    String(localized: "help_settings_item_3")
                 ]
             )
         ]
@@ -49,7 +48,7 @@ struct HelpScreen: View {
                     
                     ForEach(helpContent) { section in
                         Text(section.title)
-                            .foregroundColor(Color.praxinoTheme.appGreen)
+                            .foregroundColor(Color.praxinoTheme.textAccent)
                             .fontWeight(.bold)
                             .font(.body)
                             .padding(.bottom, 8)

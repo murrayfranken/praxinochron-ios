@@ -35,7 +35,7 @@ struct SettingsScreen: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(NSLocalizedString("label_ending_phrase", comment: ""))
                                 .font(.subheadline.bold())
-                                .foregroundColor(Color.praxinoTheme.appGreen)
+                                .foregroundColor(Color.praxinoTheme.textAccent)
                             
                             TextField("", text: $viewModel.endingPhrase)
                                 .textFieldStyle(.roundedBorder)
