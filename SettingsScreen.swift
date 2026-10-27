@@ -91,7 +91,7 @@ struct SettingsScreen: View {
                 
                 PraxinoCard {
                     VStack(alignment: .leading, spacing: 24) {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 20) {
                             Text(NSLocalizedString("label_voice_speed", comment: ""))
                                 .font(.body)
                                 .foregroundColor(Color.praxinoTheme.textPrimary)
@@ -107,7 +107,7 @@ struct SettingsScreen: View {
                             .onChange(of: viewModel.speechRate) { _ in previewTTSDebounced() }
                         }
                         
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 20) {
                             Text(NSLocalizedString("label_voice_pitch", comment: ""))
                                 .font(.body)
                                 .foregroundColor(Color.praxinoTheme.textPrimary)
@@ -121,7 +121,7 @@ struct SettingsScreen: View {
                             )
                             .tint(Color.praxinoTheme.appGreen2)
                             .onChange(of: viewModel.pitch) { _ in previewTTSDebounced() }
-                            .padding(.bottom, 24)
+                            .padding(.bottom, 16)
                         }
                     }
                     .padding(.horizontal, 16)
