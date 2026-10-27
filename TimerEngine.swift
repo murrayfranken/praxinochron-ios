@@ -2,7 +2,6 @@ import Foundation
 import AudioToolbox
 import Combine
 import UIKit
-import UserNotifications
 
 @MainActor
 final class TimerEngine: ObservableObject {
@@ -58,7 +57,6 @@ final class TimerEngine: ObservableObject {
         
         updateDisplays(seconds: timeRemainingSeconds, isSecondsMode: isSecondsMode, currentIntervalSeconds: baseIntervalSeconds, multiplier: multiplier)
         targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
-        refreshBackupNotifications()
         
         timerTask?.cancel()
                 
@@ -134,7 +132,6 @@ final class TimerEngine: ObservableObject {
     }
     
     func stop() {
-            cancelBackupNotifications()
             timerTask?.cancel()
             pauseAlarmTask?.cancel()
             isRunning = false
@@ -153,7 +150,6 @@ final class TimerEngine: ObservableObject {
     func pause() {
         guard isRunning, !isPaused else { return }
         isPaused = true
-        cancelBackupNotifications()
         Task {
             await TtsManager.shared.stop()
         }
@@ -165,7 +161,6 @@ final class TimerEngine: ObservableObject {
         isPaused = false
         pauseAlarmTask?.cancel()
         targetEndDate = Date().addingTimeInterval(TimeInterval(timeRemainingSeconds))
-        refreshBackupNotifications()
     }
     
     private func updateDisplays(seconds: Int, isSecondsMode: Bool, currentIntervalSeconds: Int, multiplier: Int) {
@@ -211,7 +206,7 @@ final class TimerEngine: ObservableObject {
     
     private func executeCompletionSequence(timerName: String, nameRepeats: Int, speechRate: Float, pitch: Float, ttsVolume: Float) {
         isRunning = false
-        // Do NOT cancel backup notifications here. Let the OS deliver the final completion banner.        SilentAudioEngine.shared.stop()
+        SilentAudioEngine.shared.stop()
         if backgroundTask != .invalid {
             UIApplication.shared.endBackgroundTask(backgroundTask)
             backgroundTask = .invalid
@@ -241,69 +236,6 @@ final class TimerEngine: ObservableObject {
         }
         
         NotificationCenter.default.post(name: NSNotification.Name(Constants.actionTimerFinished), object: nil)
-            }
-
-            private func refreshBackupNotifications() {
-                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-                guard timeRemainingSeconds > 0 else { return }
-                
-                let intervalMinutes = defaults.integer(forKey: Constants.prefIntervalTime)
-                let isSecondsMode = defaults.bool(forKey: Constants.prefIsSecondsMode)
-                let timerName = defaults.string(forKey: Constants.prefTimerName) ?? ""
-                let intervalAcceleration = defaults.object(forKey: Constants.prefIntervalAccel) as? Bool ?? true
-                let multiplier = isSecondsMode ? 1 : 60
-                let baseIntervalSeconds = (intervalMinutes == 0 ? 1 : intervalMinutes) * multiplier
-                
-                var simulatedTime = timeRemainingSeconds
-                var scheduledCount = 0
-                
-                while simulatedTime > 0 && scheduledCount < 60 {
-                    let rangeIntervalSeconds: Int
-                    if intervalAcceleration {
-                        if simulatedTime > 20 * multiplier { rangeIntervalSeconds = baseIntervalSeconds }
-                        else if simulatedTime > 10 * multiplier { rangeIntervalSeconds = 5 * multiplier }
-                        else if simulatedTime > 5 * multiplier { rangeIntervalSeconds = 2 * multiplier }
-                        else { rangeIntervalSeconds = 1 * multiplier }
-                    } else {
-                        rangeIntervalSeconds = baseIntervalSeconds
-                    }
-                    
-                    let currentIntervalSeconds = min(baseIntervalSeconds, rangeIntervalSeconds)
-                    simulatedTime -= 1
-                    
-                    if simulatedTime > 0 && simulatedTime % currentIntervalSeconds == 0 {
-                        let timeLeftOut = simulatedTime / multiplier
-                        let timeRemainingString = TimeFormatHelper.formatTime(amount: timeLeftOut, isSecondsMode: isSecondsMode)
-                        
-                        let content = UNMutableNotificationContent()
-                        content.title = timerName.isEmpty ? "Timer Interval" : timerName
-                        content.body = "\(timeRemainingString) remaining."
-                        content.sound = .default
-                        
-                        let timeUntilFire = Double(timeRemainingSeconds - simulatedTime)
-                        if timeUntilFire > 0 {
-                            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeUntilFire, repeats: false)
-                            let request = UNNotificationRequest(identifier: "interval_\(simulatedTime)", content: content, trigger: trigger)
-                            UNUserNotificationCenter.current().add(request)
-                            scheduledCount += 1
-                        }
-                    }
-                }
-                
-                let content = UNMutableNotificationContent()
-                content.title = timerName.isEmpty ? "Timer Complete" : timerName
-                content.body = String(localized: "default_ending_phrase")
-                content.sound = .default
-                let timeUntilFire = Double(timeRemainingSeconds)
-                if timeUntilFire > 0 {
-                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeUntilFire, repeats: false)
-                    let request = UNNotificationRequest(identifier: "timer_complete", content: content, trigger: trigger)
-                    UNUserNotificationCenter.current().add(request)
-                }
-            }
-
-            private func cancelBackupNotifications() {
-                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
             }
         }
 // 309 lines in v1.3

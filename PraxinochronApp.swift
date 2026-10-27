@@ -1,13 +1,11 @@
 import SwiftUI
 import AVFoundation
-import UserNotifications
 
 @main
 struct PraxinochronApp: App {
     
     init() {
         setupAudioSession()
-        requestNotificationPermissions()
     }
     
     var body: some Scene {
@@ -23,23 +21,15 @@ struct PraxinochronApp: App {
     }
     
     private func setupAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(
-                .playback,
-                mode: .default,
-                options: [.mixWithOthers, .duckOthers]
-            )
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    private func requestNotificationPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if let error = error {
+            do {
+                try AVAudioSession.sharedInstance().setCategory(
+                    .playback,
+                    mode: .default,
+                    options: [.mixWithOthers, .duckOthers]
+                )
+                try AVAudioSession.sharedInstance().setActive(true)
+            } catch {
                 print(error.localizedDescription)
             }
         }
     }
-}

@@ -80,7 +80,7 @@
 "help_title_basic_operation" = "**Basic Operation:**";
 "help_basic_item_1" = "1. **Set Duration:** Use the sliders to choose your total focus time and interval alerts.";
 "help_basic_item_2" = "2. **Seconds Mode:** Toggle 'Use Seconds' to switch the sliders from minutes to seconds for rapid interval tracking.";
-"help_basic_item_3" = "3. **Start & Control:** Tap Start to begin. You can track, Pause, Resume, or Stop the timer directly from the app or the persistent notification.";
+"help_basic_item_3" = "3. **Start & Control:** Tap Start to begin. You can track, Pause, Resume, or Stop the timer directly from the app.";
 "help_title_managing_presets" = "Managing Presets:";
 "help_manage_item_1" = "1. **Save & Update:** Type a new name and tap 'Save' to create a preset. If you modify a loaded preset's sliders or settings, tap 'Update' to overwrite it.";
 "help_manage_item_2" = "2. **Free Tier Limits:** The free version allows up to 3 saved timer presets.";
