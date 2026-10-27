@@ -466,7 +466,7 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(Color.black.opacity(0.8))
+                        .background(Color.praxinoTheme.mediumGrey2)
                         .cornerRadius(20)
                         .padding(.bottom, 60)
                 }
