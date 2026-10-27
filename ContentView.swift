@@ -106,10 +106,12 @@ struct ContentView: View {
                     if currentScreen == .main {
                         Menu {
                             if !viewModel.isPro {
-                                Button(String(localized: "menu_unlock_pro")) {
+                                Button {
                                     Task {
                                         await billingManager.buyPro()
                                     }
+                                } label: {
+                                    Label(String(localized: "menu_unlock_pro"), systemImage: "star")
                                 }
                                 Divider()
                             }

@@ -70,9 +70,9 @@ enum Constants {
     static let channelIdTimer = "TIMER_CHANNEL"
     static let wakeLockTag = "CountdownTimer::CpuWakeLock"
     static let logTagBilling = "BillingManager"
-    static let productIdPro = "unlock_full_version"
     static let jsonEmptyArray = "[]"
     static let jsonKeySchemaVersion = "schemaVersion"
     static let jsonValSchemaVersion = 1
     static let jsonKeyPresets = "presets"
+    static let productIdPro = "com.praxinoscopemedia.praxinochron.pro"
 }
