@@ -84,6 +84,7 @@ struct ContentView: View {
                                 Image(systemName: "arrow.left")
                                     .font(.system(size: 24, weight: .bold))
                                     .foregroundColor(.white)
+                                    .frame(width: 32, height: 32)
                             }
                         } else {
                             Image("rotated7_white_on_blue")
@@ -98,6 +99,7 @@ struct ContentView: View {
                             .fontWeight(.bold)
                             .foregroundColor(Color.praxinoTheme.appBlack)
                     }
+                    .frame(minHeight: 44)
                     
                     Spacer()
                     

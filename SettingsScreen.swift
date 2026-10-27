@@ -154,7 +154,8 @@ struct SettingsScreen: View {
                     .padding(.vertical, 16)
                 }
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .background(Color.praxinoTheme.background.ignoresSafeArea())
     }
