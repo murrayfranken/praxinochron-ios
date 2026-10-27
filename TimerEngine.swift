@@ -306,4 +306,4 @@ final class TimerEngine: ObservableObject {
                 UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
             }
         }
-// 317 lines in v1.2
+// 309 lines in v1.3
