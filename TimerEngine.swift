@@ -220,4 +220,4 @@ final class TimerEngine: ObservableObject {
         NotificationCenter.default.post(name: NSNotification.Name(Constants.actionTimerFinished), object: nil)
             }
         }
-// 309 lines in v1.3
+// 223 lines in v1.3

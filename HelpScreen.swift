@@ -76,4 +76,4 @@ struct HelpScreen: View {
         .background(Color.praxinoTheme.background.ignoresSafeArea())
     }
 }
-// 79 lines in v1.2
+// 79 lines in v1.3
