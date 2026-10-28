@@ -74,5 +74,5 @@ enum Constants {
     static let jsonKeySchemaVersion = "schemaVersion"
     static let jsonValSchemaVersion = 1
     static let jsonKeyPresets = "presets"
-    static let productIdPro = "com.praxinoscopemedia.praxinochron.pro"
+    static let productIdPro = "com.praxinoscopemedia.praxinochron.pro2"
 }
