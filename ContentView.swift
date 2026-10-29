@@ -397,6 +397,8 @@ struct ContentView: View {
                     SettingsScreen(viewModel: viewModel)
                 } else if currentScreen == .help {
                     HelpScreen()
+                        .environmentObject(viewModel)
+                        .environmentObject(billingManager)
                 }
                 
                 Spacer(minLength: 0)

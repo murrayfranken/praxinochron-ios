@@ -7,6 +7,12 @@ struct HelpSection: Identifiable {
 }
 
 struct HelpScreen: View {
+    @EnvironmentObject var viewModel: TimerViewModel
+    @EnvironmentObject var billingManager: BillingManager
+    
+    @State private var showingRestoreAlert = false
+    @State private var alertMessage = ""
+    
     var helpContent: [HelpSection] {
         [
             HelpSection(
@@ -58,22 +64,43 @@ struct HelpScreen: View {
                                 .font(.title3.bold())
                                 .padding(.bottom, 4)
                             
-                            ForEach(section.itemKeys, id: \.self) { key in
-                                Text(LocalizedStringKey(key))
-                                    .foregroundColor(Color.praxinoTheme.textPrimary)
-                                    .font(.body)
-                                    .padding(.bottom, 4)
+                ForEach(section.itemKeys, id: \.self) { key in
+                                                Text(LocalizedStringKey(key))
+                                                    .foregroundColor(Color.praxinoTheme.textPrimary)
+                                                    .font(.body)
+                                                    .padding(.bottom, 4)
+                                            }
+                                        }
+                                        .padding(16)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                                
+                                if !viewModel.isPro {
+                                    Button {
+                                        Task {
+                                            let success = await billingManager.restorePurchases()
+                                            alertMessage = success ? String(localized: "restore_success") : String(localized: "restore_empty")
+                                            showingRestoreAlert = true
+                                        }
+                                    } label: {
+                                        Text(String(localized: "action_restore_purchases"))
+                                            .font(.body)
+                                            .foregroundColor(Color.praxinoTheme.appBlack)
+                                            .underline()
+                                            .padding(.top, 16)
+                                    }
+                                }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 32)
                         }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.praxinoTheme.background.ignoresSafeArea())
+                    .alert(String(localized: "alert_restore_title"), isPresented: $showingRestoreAlert) {
+                        Button("OK", role: .cancel) { }
+                    } message: {
+                        Text(alertMessage)
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
-        }
-        .background(Color.praxinoTheme.background.ignoresSafeArea())
-    }
-}
-// 79 lines in v1.3
+// 106 lines in v1.3.1 (3)

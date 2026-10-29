@@ -69,12 +69,23 @@ class BillingManager: ObservableObject {
             @unknown default:
                 logger.warning("Unknown purchase result")
             }
-        } catch {
-            logger.error("Failed to purchase: \(error.localizedDescription)")
+    } catch {
+                logger.error("Failed to purchase: \(error.localizedDescription)")
+            }
         }
-    }
-    
-    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+
+    func restorePurchases() async -> Bool {
+            do {
+                try await AppStore.sync()
+                await updatePurchasedStatus()
+                return isPro
+            } catch {
+                print("Failed to restore purchases: \(error.localizedDescription)")
+                return false
+            }
+        }
+        
+        nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
             switch result {
             case .unverified:
                 throw StoreError.failedVerification
@@ -82,9 +93,9 @@ class BillingManager: ObservableObject {
                 return safe
             }
         }
-}
+    }
 
 enum StoreError: Error {
     case failedVerification
 }
-// 90 lines in v1.3
+// 98 lines in v1.3.1 (3)

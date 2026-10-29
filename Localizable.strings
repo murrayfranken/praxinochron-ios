@@ -90,3 +90,7 @@
 "help_settings_item_1" = "1. **Interval Acceleration:** Enabled by default, this automatically speeds up interval alerts as your timer approaches zero (e.g., intervals shrink to 2 minutes when under 10 minutes remain). Disable it in Settings to keep intervals strictly fixed.";
 "help_settings_item_2" = "2. **Voice Control:** Customize the speech rate, pitch, volume, and ending phrases directly from the main panel or Settings screen.";
 "help_settings_item_3" = "3. **Pause Reminder Beep:** Set a periodic alert beep (Off, 1, 2, or 3 minutes/seconds) to sound while the timer remains paused.";
+"action_restore_purchases" = "Restore Purchases";
+"restore_success" = "Your purchase was successfully restored.";
+"restore_empty" = "No previous purchases were found on this Apple ID.";
+"alert_restore_title" = "Restore Purchases";
